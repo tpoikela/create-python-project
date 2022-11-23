@@ -9,6 +9,7 @@ Following commands are supported:
     * --dir:  Directory of the new project
     * --force: Overwrites existing project
     * --files: Python files to create in src folder and test folder
+    * --url: URL to the project
 
 """
 
@@ -30,6 +31,7 @@ def create_arg_parser():
     create_parser.add_argument('--force', help='Overwrites existing project', action='store_true')
     create_parser.add_argument('--files',
         help='Python files to create in src folder and test folder', nargs='+')
+    create_parser.add_argument('--url', help='URL to the project')
 
     return parser
 
@@ -39,6 +41,9 @@ def create_project(name, directory, args):
     # Create the directory
     print('Creating directory: ' + directory)
     if not os.path.exists(directory) or args.force:
+        # Delete existing directory if force is specified
+        if os.path.exists(directory):
+            os.system('rm -rf ' + './' + directory)
         os.makedirs(directory)
     else:
         raise Exception('Directory already exists: ' + directory)
@@ -52,7 +57,7 @@ def create_project(name, directory, args):
         subst_dict = {'name': name,
                       'author': user,
                       'email': 'TODO@somemail.com',
-                      'url': 'TODO'}
+                      'url': args.url}
         setup_template = Template(setup_template).substitute(subst_dict)
         with open(os.path.join(directory, 'setup.py'), 'w') as setup_file:
             setup_file.write(setup_template)
@@ -61,10 +66,15 @@ def create_project(name, directory, args):
     print('Creating README.md')
     with open('tmpl/README.md.tmpl', 'r') as readme_template_file:
         readme_template = readme_template_file.read()
-        subst_dict = {'name': name}
+        subst_dict = {'name': name, 'url': args.url}
         readme_template = Template(readme_template).substitute(subst_dict)
         with open(os.path.join(directory, 'README.md'), 'w') as readme_file:
             readme_file.write(readme_template)
+
+    # Create VERSION file
+    print('Creating VERSION')
+    with open(os.path.join(directory, 'VERSION'), 'w') as version_file:
+        version_file.write('0.0.1')
 
     # Download MIT License from github and save it to LICENSE
     try:
@@ -150,3 +160,7 @@ if __name__ == '__main__':
     if args.command == 'create':
         print('Creating project {} in directory {}'.format(args.name, args.dir))
         create_project(args.name, args.dir, args)
+    else:
+        # Print help and exit
+        parser.print_help()
+
