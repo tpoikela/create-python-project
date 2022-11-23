@@ -30,9 +30,9 @@ def create_arg_parser():
     create_parser.add_argument('--name', help='Name of the new project', required=True)
     create_parser.add_argument('--dir', help='Directory of the new project', required=True)
     create_parser.add_argument('--force', help='Overwrites existing project', action='store_true')
-    create_parser.add_argument('--files',
-        help='Python files to create in src folder and test folder', nargs='+')
     create_parser.add_argument('--data', help='Key-value pairs used in templates', nargs='+')
+    create_parser.add_argument('files',
+        help='Python files to create in src folder and test folder', nargs='+')
 
     return parser
 
@@ -57,7 +57,7 @@ def create_project(name, directory, args, user_data):
             os.system('rm -rf ' + './' + directory)
         os.makedirs(directory)
     else:
-        raise Exception('Directory already exists: ' + directory)
+        raise Exception('Directory already exists: ' + directory + '. Use --force to overwrite.')
 
     # Create setup.py from template setup.py.tmpl and fill using Template
     print('Creating setup.py')
@@ -171,9 +171,10 @@ if __name__ == '__main__':
 
     # Get key-value pairs from args.data list
     data = {}
-    for d in args.data:
-        key, value = d.split('=')
-        data[key] = value
+    if args.data is not None:
+        for d in args.data:
+            key, value = d.split('=')
+            data[key] = value
 
     if args.command == 'create':
         print('Creating project {} in directory {}'.format(args.name, args.dir))
