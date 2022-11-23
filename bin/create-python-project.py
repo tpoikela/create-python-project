@@ -9,7 +9,7 @@ Following commands are supported:
     * --dir:  Directory of the new project
     * --force: Overwrites existing project
     * --files: Python files to create in src folder and test folder
-    * --url: URL to the project
+    * --data: Key-value pairs used in templates.
 
 """
 
@@ -19,6 +19,7 @@ from string import Template
 import urllib.request
 
 MIT_LIC_URL = 'https://raw.githubusercontent.com/github/choosealicense.com/gh-pages/_licenses/mit.txt'
+GIT_IGN_URL = 'https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore'
 
 def create_arg_parser():
     """ Creates new argparser supporting specified commands and arguments """
@@ -31,11 +32,21 @@ def create_arg_parser():
     create_parser.add_argument('--force', help='Overwrites existing project', action='store_true')
     create_parser.add_argument('--files',
         help='Python files to create in src folder and test folder', nargs='+')
-    create_parser.add_argument('--url', help='URL to the project')
+    create_parser.add_argument('--data', help='Key-value pairs used in templates', nargs='+')
 
     return parser
 
-def create_project(name, directory, args):
+# Function fills templ_str with data and returns the result
+def fill_template(templ_str, subst_dict, data_dict):
+    """ Reads template file, fills template with data and returns the result """
+    # Combine subst_dict and data
+    data = subst_dict.copy()
+    data.update(data_dict)
+    template = Template(templ_str)
+    return template.substitute(data)
+
+
+def create_project(name, directory, args, user_data):
     """ Creates a new project with specified name and directory """
 
     # Create the directory
@@ -57,8 +68,9 @@ def create_project(name, directory, args):
         subst_dict = {'name': name,
                       'author': user,
                       'email': 'TODO@somemail.com',
-                      'url': args.url}
-        setup_template = Template(setup_template).substitute(subst_dict)
+                      'url': ''}
+
+        setup_template = fill_template(setup_template, subst_dict, user_data)
         with open(os.path.join(directory, 'setup.py'), 'w') as setup_file:
             setup_file.write(setup_template)
 
@@ -66,7 +78,7 @@ def create_project(name, directory, args):
     print('Creating README.md')
     with open('tmpl/README.md.tmpl', 'r') as readme_template_file:
         readme_template = readme_template_file.read()
-        subst_dict = {'name': name, 'url': args.url}
+        subst_dict = {'name': name, 'url': ''}
         readme_template = Template(readme_template).substitute(subst_dict)
         with open(os.path.join(directory, 'README.md'), 'w') as readme_file:
             readme_file.write(readme_template)
@@ -88,7 +100,7 @@ def create_project(name, directory, args):
     try:
         # Download .gitignore from github and save it to .gitignore
         print('Creating .gitignore')
-        with urllib.request.urlopen('https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore') as response:
+        with urllib.request.urlopen( GIT_IGN_URL) as response:
             with open(os.path.join(directory, '.gitignore'), 'w') as gitignore_file:
                 gitignore_file.write(response.read().decode('utf-8'))
     except:
@@ -157,9 +169,15 @@ if __name__ == '__main__':
     parser = create_arg_parser()
     args = parser.parse_args()
 
+    # Get key-value pairs from args.data list
+    data = {}
+    for d in args.data:
+        key, value = d.split('=')
+        data[key] = value
+
     if args.command == 'create':
         print('Creating project {} in directory {}'.format(args.name, args.dir))
-        create_project(args.name, args.dir, args)
+        create_project(args.name, args.dir, args, data)
     else:
         # Print help and exit
         parser.print_help()

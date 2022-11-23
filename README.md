@@ -1,9 +1,13 @@
 create-python-project
 =======================
 
-A script to create an initial project setup. Created out of frustration, when
+A script to create an initial Python project setup. Created out of frustration, when
 googling how to import the modules under test to unittest files for the umpth
 time.
+
+Features:
+Creates README.md, src and test folders, Makefile, .gitignore, LICENSE, VERSION
+and setup.py.
 
 ## Installation
 
@@ -35,3 +39,10 @@ make coverage
 
 Templates are in `tmpl/` folder. Everything is filled up using Python's
 `string.Template`. You can customise as you wish.
+
+You can add variables to templates using `$varname`. To fill the value in
+template, use the `--data` argument:
+
+```
+bin/create-python-project.py ... --data varname=value --data var2=val2
+```
