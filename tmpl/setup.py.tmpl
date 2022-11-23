@@ -1,0 +1,37 @@
+"""
+setup.py for project $name
+"""
+
+from distutils.core import setup
+
+# Read the version number from the version file
+with open('VERSION') as f:
+    version = f.read().strip()
+
+# Read long description from README
+with open('README.md') as f:
+    long_description = f.read()
+
+setup(
+    name = "$name",
+    version = version,
+    description = "TODO: Add short description",
+    author = "$author",
+    author_email = "$email",
+    url = "$url",
+    packages = ["$name"],
+    package_dir = {"$name": "$name"},
+    package_data = {"$name": ["data/*"]},
+    scripts = ["bin/$name"],
+    long_description = long_description,
+    classifiers = [
+        "Development Status :: 3 - Alpha",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "License :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Utilities",
+    ],
+)

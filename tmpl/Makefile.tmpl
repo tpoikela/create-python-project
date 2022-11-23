@@ -1,0 +1,21 @@
+# Makefile for project $name
+
+test:
+    python -m unittest discover -s test
+
+lint:
+    pylint src
+
+typecheck:
+    mypy src
+
+# Test with code coverage
+coverage:
+    coverage run --source=$name -m unittest discover -s test
+    coverage report -m
+
+clean:
+    rm -rf build dist *.egg-info
+
+.PHONY: test clean coverage
+

@@ -1,0 +1,5 @@
+# Development dependencies for the project
+# Install with: pip install -r requirements_dev.txt
+mypy
+pylint
+coverage
